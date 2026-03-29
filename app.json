@@ -1,13 +1,13 @@
 {
   "expo": {
-    "name": "GeoNotas Formosa",
-    "slug": "geonotas-formosa",
-    "version": "1.0.0",
+    "name": "GeoNotas",
+    "slug": "geonotas",
+    "version": "1.1.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/iconubi.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/icon.png",
+      "image": "./assets/iconubi.png",
       "resizeMode": "contain",
       "backgroundColor": "#F5F8FC"
     },
@@ -16,7 +16,7 @@
     ],
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/icon.png",
+        "foregroundImage": "./assets/iconubi.png",
         "backgroundColor": "#ffffff"
       },
       "package": "com.enzo12.geonotas",
@@ -28,11 +28,11 @@
     "plugins": [
       "expo-asset"
     ],
+    "owner": "enzoeb12",
     "extra": {
       "eas": {
-        "projectId": "1f987d37-bf01-4eb8-9e2d-890a8d7a729c"
+        "projectId": "7af314d9-f460-403a-ad7d-1633542bf090"
       }
-    },
-    "owner": "enzoeb12"
+    }
   }
 }

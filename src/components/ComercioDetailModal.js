@@ -7,7 +7,9 @@ import {
   Text,
   TouchableOpacity,
   View,
+  Pressable,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "../constants/colors";
 import { RUBRO_ICONS, RUBRO_LABELS } from "../constants/rubros";
 import AreaBadge from "./AreaBadge";
@@ -21,13 +23,34 @@ export default function ComercioDetailModal({
   onRestore,
   inactive = false,
 }) {
+  const insets = useSafeAreaInsets();
+
   if (!comercio) return null;
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
       <View style={styles.overlay}>
-        <View style={styles.sheet}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+        <Pressable style={styles.backdrop} onPress={onClose} />
+
+        <View
+          style={[
+            styles.sheet,
+            {
+              paddingBottom: Math.max(insets.bottom, 14) + 8,
+            },
+          ]}
+        >
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+            bounces={false}
+          >
             <View style={styles.topRow}>
               <Image source={RUBRO_ICONS[comercio.rubro]} style={styles.icon} />
               <View style={{ flex: 1 }}>
@@ -105,15 +128,22 @@ export default function ComercioDetailModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
     justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.35)",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
   },
   sheet: {
     backgroundColor: COLORS.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    padding: 18,
-    maxHeight: "82%",
+    paddingTop: 18,
+    paddingHorizontal: 18,
+    maxHeight: "80%",
+  },
+  scrollContent: {
+    paddingBottom: 4,
   },
   topRow: {
     flexDirection: "row",

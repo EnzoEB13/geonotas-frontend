@@ -7,9 +7,18 @@ export const RUBRO_LABELS = {
   Mixto: "Mixto",
 };
 
+// ⚡ Ahora usamos URIs en vez de require
 export const RUBRO_ICONS = {
-  Carniceria: require("../../assets/logoPuntos/logoCarniceria.png"),
-  MiniMercado: require("../../assets/logoPuntos/logoMercado.png"),
-  Polleria: require("../../assets/logoPuntos/logoPolleria.webp"),
-  Mixto: require("../../assets/logoPuntos/logoMixto.png"),
+  Carniceria: {
+    uri: "https://res.cloudinary.com/dabtnpikz/image/upload/v1774807524/logoCarniceria_uacsmf.png",
+  },
+  MiniMercado: {
+    uri: "https://res.cloudinary.com/dabtnpikz/image/upload/v1774807522/logoMercado_ov5jxh.png",
+  },
+  Polleria: {
+    uri: "https://res.cloudinary.com/dabtnpikz/image/upload/v1774807522/logoPolleria_fsoevo.png",
+  },
+  Mixto: {
+    uri: "https://res.cloudinary.com/dabtnpikz/image/upload/v1774807522/logoMixto_a1ks1v.png",
+  },
 };

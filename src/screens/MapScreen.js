@@ -18,7 +18,7 @@ import {
 } from "../api/comercios.api";
 
 import { COLORS } from "../constants/colors";
-import { getRegionFromPolygon, pointInPolygon } from "../utils/map";
+import { pointInPolygon } from "../utils/map";
 import { showError, showSuccess } from "../utils/toast";
 
 export default function MapScreen() {
@@ -40,6 +40,9 @@ export default function MapScreen() {
 
   const [detailVisible, setDetailVisible] = useState(false);
   const [selectedComercio, setSelectedComercio] = useState(null);
+
+  const fabBottom = Math.max(insets.bottom, 10) + 72;
+  const actionsBottom = fabBottom + 74;
 
   const loadInitialData = async () => {
     try {
@@ -63,7 +66,10 @@ export default function MapScreen() {
         setVisibleComercios(filtered);
       }
     } catch (error) {
-      showError("Error", error?.response?.data?.message || "No se pudieron cargar los datos");
+      showError(
+        "Error",
+        error?.response?.data?.message || "No se pudieron cargar los datos"
+      );
     } finally {
       setLoading(false);
     }
@@ -72,18 +78,6 @@ export default function MapScreen() {
   useEffect(() => {
     loadInitialData();
   }, []);
-
-  const refreshSelectedAreaComercios = async (areaId) => {
-    try {
-      const updated = await getComerciosRequest({ areaId, activo: true });
-      const activos = (updated.comercios || []).filter((item) => item.activo !== false);
-      setVisibleComercios(activos);
-      return activos;
-    } catch (error) {
-      setVisibleComercios([]);
-      return [];
-    }
-  };
 
   const handleSelectArea = (area) => {
     setSelectedArea(area);
@@ -96,9 +90,6 @@ export default function MapScreen() {
       (item) => item.area?._id === area._id && item.activo !== false
     );
     setVisibleComercios(filtered);
-
-    const region = getRegionFromPolygon(area.coordenadas);
-    mapRef.current?.animateToRegion(region, 500);
   };
 
   const handleEnableSelectionMode = () => {
@@ -112,11 +103,11 @@ export default function MapScreen() {
 
     showSuccess(
       "Modo selección activado",
-      "Mantené presionado dentro del área para marcar la ubicación"
+      "Tocá dentro del área para marcar la ubicación"
     );
   };
 
-  const handleMapLongPress = (event) => {
+  const handleMapLongPress = (coordinate) => {
     if (!selectionMode) return;
 
     if (!selectedArea) {
@@ -124,11 +115,13 @@ export default function MapScreen() {
       return;
     }
 
-    const coordinate = event.nativeEvent.coordinate;
     const inside = pointInPolygon(coordinate, selectedArea.coordenadas);
 
     if (!inside) {
-      showError("Punto inválido", "La ubicación debe estar dentro del área seleccionada");
+      showError(
+        "Punto inválido",
+        "La ubicación debe estar dentro del área seleccionada"
+      );
       return;
     }
 
@@ -150,7 +143,7 @@ export default function MapScreen() {
     if (!selectedLocation) {
       showError(
         "Ubicación requerida",
-        "Primero tocá 'Seleccionar ubicación' y luego mantené presionado en el mapa"
+        "Primero tocá 'Seleccionar ubicación' y luego tocá el mapa"
       );
       return;
     }
@@ -189,11 +182,16 @@ export default function MapScreen() {
       setAllActiveComercios(comerciosData);
 
       if (selectedArea?._id) {
-        const filtered = comerciosData.filter((item) => item.area?._id === selectedArea._id);
+        const filtered = comerciosData.filter(
+          (item) => item.area?._id === selectedArea._id
+        );
         setVisibleComercios(filtered);
       }
     } catch (error) {
-      showError("Error", error?.response?.data?.message || "No se pudo guardar el comercio");
+      showError(
+        "Error",
+        error?.response?.data?.message || "No se pudo guardar el comercio"
+      );
     }
   };
 
@@ -210,11 +208,15 @@ export default function MapScreen() {
             try {
               await deleteComercioRequest(comercio._id);
 
-              const updatedAll = allActiveComercios.filter((item) => item._id !== comercio._id);
+              const updatedAll = allActiveComercios.filter(
+                (item) => item._id !== comercio._id
+              );
               setAllActiveComercios(updatedAll);
 
               if (selectedArea?._id) {
-                const updatedVisible = visibleComercios.filter((item) => item._id !== comercio._id);
+                const updatedVisible = visibleComercios.filter(
+                  (item) => item._id !== comercio._id
+                );
                 setVisibleComercios(updatedVisible);
               }
 
@@ -225,7 +227,10 @@ export default function MapScreen() {
 
               showSuccess("Listo", "Comercio desactivado");
             } catch (error) {
-              showError("Error", error?.response?.data?.message || "No se pudo desactivar");
+              showError(
+                "Error",
+                error?.response?.data?.message || "No se pudo desactivar"
+              );
             }
           },
         },
@@ -275,12 +280,12 @@ export default function MapScreen() {
       />
 
       {actionsVisible && (
-        <View style={[styles.floatingCard, { bottom: insets.bottom + 78 }]}>
+        <View style={[styles.floatingCard, { bottom: actionsBottom }]}>
           <Text style={styles.helpText}>
             {!selectedArea
               ? "1. Tocá un área"
               : selectionMode
-              ? "2. Mantené presionado dentro del área"
+              ? "2. Tocá dentro del área"
               : !selectedLocation
               ? "2. Tocá Seleccionar ubicación"
               : "3. Ahora tocá Nuevo Comercio"}
@@ -300,7 +305,10 @@ export default function MapScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.newButton, !selectedLocation && styles.buttonDisabled]}
+            style={[
+              styles.newButton,
+              !selectedLocation && styles.buttonDisabled,
+            ]}
             onPress={handleOpenCreate}
             disabled={!selectedLocation}
           >
@@ -311,7 +319,7 @@ export default function MapScreen() {
 
       <TouchableOpacity
         activeOpacity={0.9}
-        style={[styles.fab, { bottom: insets.bottom + 78 }]}
+        style={[styles.fab, { bottom: fabBottom }]}
         onPress={() => {
           if (!selectedArea) {
             showError("Área requerida", "Primero seleccioná un área");
@@ -364,11 +372,16 @@ const styles = StyleSheet.create({
     position: "absolute",
     left: 16,
     right: 16,
-    backgroundColor: "rgba(255,255,255,0.97)",
+    backgroundColor: "rgba(255,255,255,0.98)",
     borderRadius: 18,
     padding: 12,
     borderWidth: 1,
     borderColor: COLORS.border,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
   },
 
   helpText: {
@@ -377,6 +390,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
     fontWeight: "700",
+    lineHeight: 18,
   },
 
   secondaryButton: {
@@ -419,7 +433,7 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
     alignItems: "center",
     justifyContent: "center",
-    elevation: 6,
+    elevation: 8,
     shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 6,

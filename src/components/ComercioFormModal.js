@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   Image,
+  KeyboardAvoidingView,
   Modal,
+  Platform,
+  Pressable,
   ScrollView,
   StyleSheet,
   Switch,
@@ -10,6 +13,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { COLORS } from "../constants/colors";
 import { RUBRO_ICONS, RUBRO_LABELS, RUBROS } from "../constants/rubros";
 
@@ -28,6 +32,7 @@ export default function ComercioFormModal({
   selectedLocation,
   editingComercio,
 }) {
+  const insets = useSafeAreaInsets();
   const [form, setForm] = useState(initialState);
 
   useEffect(() => {
@@ -66,115 +71,153 @@ export default function ComercioFormModal({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View style={styles.overlay}>
-        <View style={styles.sheet}>
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <Text style={styles.title}>
-              {editingComercio ? "Editar Comercio" : "Nuevo Comercio"}
-            </Text>
-            <Text style={styles.subtitle}>
-              {selectedArea?.nombreArea || "Seleccioná un área"}
-            </Text>
+    <Modal
+      visible={visible}
+      animationType="slide"
+      transparent
+      statusBarTranslucent
+      onRequestClose={onClose}
+    >
+      <KeyboardAvoidingView
+        style={styles.keyboardRoot}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <View style={styles.overlay}>
+          <Pressable style={styles.backdrop} onPress={onClose} />
 
-            <Text style={styles.label}>Nombre del comercio</Text>
-            <TextInput
-              value={form.nombre}
-              onChangeText={(text) => setForm((prev) => ({ ...prev, nombre: text }))}
-              placeholder="Ej: Almacén San José"
-              style={styles.input}
-            />
-
-            <Text style={styles.label}>Rubro</Text>
-            <View style={styles.rubrosContainer}>
-              {RUBROS.map((rubro) => {
-                const active = form.rubro === rubro;
-
-                return (
-                  <TouchableOpacity
-                    key={rubro}
-                    style={[styles.rubroChip, active && styles.rubroChipActive]}
-                    onPress={() => setForm((prev) => ({ ...prev, rubro }))}
-                  >
-                    <Text
-                      style={[
-                        styles.rubroChipText,
-                        active && styles.rubroChipTextActive,
-                      ]}
-                    >
-                      {RUBRO_LABELS[rubro]}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
-
-            <View style={styles.previewCard}>
-              <Text style={styles.previewLabel}>Vista previa del ícono</Text>
-              <Image source={iconSource} style={styles.previewIcon} />
-            </View>
-
-            <View style={styles.switchRow}>
-              <View>
-                <Text style={styles.label}>Habilitación</Text>
-                <Text style={styles.switchHint}>{form.habilitacion ? "Sí" : "No"}</Text>
-              </View>
-              <Switch
-                value={form.habilitacion}
-                onValueChange={(value) =>
-                  setForm((prev) => ({ ...prev, habilitacion: value }))
-                }
-              />
-            </View>
-
-            <Text style={styles.label}>Descripción</Text>
-            <TextInput
-              value={form.descripcion}
-              onChangeText={(text) => setForm((prev) => ({ ...prev, descripcion: text }))}
-              placeholder="Descripción del comercio"
-              style={[styles.input, styles.textarea]}
-              multiline
-              textAlignVertical="top"
-            />
-
-            <Text style={styles.label}>Ubicación elegida</Text>
-            <View style={styles.locationBox}>
-              <Text style={styles.locationText}>
-                {selectedLocation?.latitude?.toFixed(6) || "-"},{" "}
-                {selectedLocation?.longitude?.toFixed(6) || "-"}
+          <View
+            style={[
+              styles.sheet,
+              {
+                paddingBottom: Math.max(insets.bottom, 14) + 8,
+              },
+            ]}
+          >
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              contentContainerStyle={styles.scrollContent}
+              bounces={false}
+            >
+              <Text style={styles.title}>
+                {editingComercio ? "Editar Comercio" : "Nuevo Comercio"}
               </Text>
-            </View>
 
-            <View style={styles.actions}>
-              <TouchableOpacity style={[styles.button, styles.cancel]} onPress={onClose}>
-                <Text style={styles.cancelText}>Cancelar</Text>
-              </TouchableOpacity>
+              <Text style={styles.subtitle}>
+                {selectedArea?.nombreArea || "Seleccioná un área"}
+              </Text>
 
-              <TouchableOpacity style={[styles.button, styles.save]} onPress={handleSave}>
-                <Text style={styles.saveText}>
-                  {editingComercio ? "Guardar cambios" : "Crear comercio"}
+              <Text style={styles.label}>Nombre del comercio</Text>
+              <TextInput
+                value={form.nombre}
+                onChangeText={(text) => setForm((prev) => ({ ...prev, nombre: text }))}
+                placeholder="Ej: Almacén San José"
+                placeholderTextColor="#94A3B8"
+                style={styles.input}
+              />
+
+              <Text style={styles.label}>Rubro</Text>
+              <View style={styles.rubrosContainer}>
+                {RUBROS.map((rubro) => {
+                  const active = form.rubro === rubro;
+
+                  return (
+                    <TouchableOpacity
+                      key={rubro}
+                      style={[styles.rubroChip, active && styles.rubroChipActive]}
+                      onPress={() => setForm((prev) => ({ ...prev, rubro }))}
+                    >
+                      <Text
+                        style={[
+                          styles.rubroChipText,
+                          active && styles.rubroChipTextActive,
+                        ]}
+                      >
+                        {RUBRO_LABELS[rubro]}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              <View style={styles.previewCard}>
+                <Text style={styles.previewLabel}>Vista previa del ícono</Text>
+                <Image source={iconSource} style={styles.previewIcon} />
+              </View>
+
+              <View style={styles.switchRow}>
+                <View>
+                  <Text style={styles.label}>Habilitación</Text>
+                  <Text style={styles.switchHint}>{form.habilitacion ? "Sí" : "No"}</Text>
+                </View>
+                <Switch
+                  value={form.habilitacion}
+                  onValueChange={(value) =>
+                    setForm((prev) => ({ ...prev, habilitacion: value }))
+                  }
+                />
+              </View>
+
+              <Text style={styles.label}>Descripción</Text>
+              <TextInput
+                value={form.descripcion}
+                onChangeText={(text) => setForm((prev) => ({ ...prev, descripcion: text }))}
+                placeholder="Descripción del comercio"
+                placeholderTextColor="#94A3B8"
+                style={[styles.input, styles.textarea]}
+                multiline
+                textAlignVertical="top"
+              />
+
+              <Text style={styles.label}>Ubicación elegida</Text>
+              <View style={styles.locationBox}>
+                <Text style={styles.locationText}>
+                  {selectedLocation?.latitude?.toFixed(6) || "-"},{" "}
+                  {selectedLocation?.longitude?.toFixed(6) || "-"}
                 </Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
+              </View>
+
+              <View style={styles.actions}>
+                <TouchableOpacity style={[styles.button, styles.cancel]} onPress={onClose}>
+                  <Text style={styles.cancelText}>Cancelar</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={[styles.button, styles.save]} onPress={handleSave}>
+                  <Text style={styles.saveText}>
+                    {editingComercio ? "Guardar cambios" : "Crear comercio"}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          </View>
         </View>
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
+  keyboardRoot: {
+    flex: 1,
+  },
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
     justifyContent: "flex-end",
+    backgroundColor: "rgba(0,0,0,0.35)",
+  },
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
   },
   sheet: {
     backgroundColor: COLORS.surface,
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    padding: 16,
-    maxHeight: "88%",
+    paddingTop: 16,
+    paddingHorizontal: 16,
+    maxHeight: "84%",
+  },
+  scrollContent: {
+    paddingBottom: 6,
   },
   title: {
     fontSize: 22,
@@ -253,6 +296,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    gap: 12,
   },
   switchHint: {
     color: COLORS.muted,
